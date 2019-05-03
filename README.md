@@ -8,3 +8,4 @@ Material for course Programmiersprachen 1 (SS 2019) - Universität Tübingen
 
 ## Homework
 - [1st homework](exercises/01Hw.scala)
+- [2nd homework](exercises/02Hw.scala)
