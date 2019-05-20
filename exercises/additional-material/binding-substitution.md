@@ -86,7 +86,7 @@ otherwise the variable stays as it is.
 ```scala
 def subst(e: Expr, i: Symbol, v: Num): Exp = e match {
   case Num(n)              => e
-  case Add(l,r)            => Add(subst(l, x, v), subst(r, x, v))
+  case Add(l,r)            => Add(subst(l, i, v), subst(r, i, v))
   case Var(x)              => if (x == i) v else e
   case With(x, xDef, body) => ???
 }
@@ -123,7 +123,7 @@ With this in mind, we can now complete our paraphrase by adding the word "free":
 This in turn lets us complete the definition of `subst`:
 
 ```scala
-  case With(x, xDef, body) => With(x, subst(body, i, v), if (x == i) body else subst(body, i, v)
+  case With(x, xDef, body) => With(x, subst(xDef, i, v), if (x == i) body else subst(body, i, v)
 ```
 
 We substitute within the definition for the variable bound by the `With` (`x`), and within the body,
