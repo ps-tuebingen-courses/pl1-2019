@@ -123,7 +123,7 @@ With this in mind, we can now complete our paraphrase by adding the word "free":
 This in turn lets us complete the definition of `subst`:
 
 ```scala
-  case With(x, xDef, body) => With(x, subst(xDef, i, v), if (x == i) body else subst(body, i, v)
+  case With(x, xDef, body) => With(x, subst(xDef, i, v), if (x == i) body else subst(body, i, v))
 ```
 
 We substitute within the definition for the variable bound by the `With` (`x`), and within the body,
