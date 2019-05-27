@@ -1,13 +1,18 @@
 /**
 First-Order Functions
 =====================
-In the last lecture we have seen how we can give commonly occuring (sub)expressions a name via the "with" construct. Often, however, we can identify _patterns_ of expressions that occur in many places, such as ``5*5/2``, ``7*7/2`` and ``3*3/2``, the common pattern being ``x*x/2``. In this case, the abstraction capabilities of ``with`` are not sufficient.
+In the last lecture we have seen how we can give commonly occuring (sub)expressions a name via the "with" construct. Often, however,
+we can identify _patterns_ of expressions that occur in many places, such as ``5*5/2``, ``7*7/2`` and ``3*3/2``, the common pattern
+being ``x*x/2``. In this case, the abstraction capabilities of ``with`` are not sufficient.
 
-One way to enable more powerful abstractions are _functions_. Depending on the context of use and the interaction with other language features (such as imperative features or objects), functions are also sometimes called _procedures_ or _methods_.
+One way to enable more powerful abstractions are _functions_. Depending on the context of use and the interaction with other language
+features (such as imperative features or objects), functions are also sometimes called _procedures_ or _methods_.
 
-Here we consider so-called first-order functions, that - unlike higher-order functions - are not expressions and can hence not be passed to or be returned from other functions. First-order functions are simply called by name.
+Here we consider so-called first-order functions, that - unlike higher-order functions - are not expressions and can hence not be passed
+to or be returned from other functions. First-order functions are simply called by name.
  
-To introduce first-order functions, we need two new things: The possibility to define functions, and the possibility to call functions. A call to a function is an expression, whereas functions are defined separately. Functions can have an arbitrary number of arguments.
+To introduce first-order functions, we need two new things: The possibility to define functions, and the possibility to call functions.
+A call to a function is an expression, whereas functions are defined separately. Functions can have an arbitrary number of arguments.
 
 The following definitions are the language we have analyzed so far 
 */
@@ -76,7 +81,10 @@ def eval(funs: Funs, e: Exp) : Int = e match {
 }
 
 /** 
-Is the extension really so straightforward?  It can be seen in the last line of our definition for ``subst`` that variable substitution deliberately ignores the function name ``f``.  The substitution for ``f`` instead is handled separately inside ``eval``.  We say in this case that function names and variable names live in different "name spaces".  An alternative would be to have them share one namespace.  As an exercise, think about how to support a common namespace for function names and variable names.
+Is the extension really so straightforward?  It can be seen in the last line of our definition for ``subst`` that variable substitution
+deliberately ignores the function name ``f``.  The substitution for ``f`` instead is handled separately inside ``eval``.  We say in this
+case that function names and variable names live in different "name spaces".  An alternative would be to have them share one namespace. 
+As an exercise, think about how to support a common namespace for function names and variable names.
 */
 
 /* A test case */
@@ -106,17 +114,25 @@ val testProgAfterTwoSteps    = With('z, 3, Add(1,Add(2,'z)))
 val testProgAfterThreeSteps  = Add(1,Add(2,3))
 
 /**
-At this point only pure arithmetic is left. But we see that the interpreter had to apply subsitution three times. In general, if the program size is n, then the interpreter may perform up to O(n) substitutions, each of which takes O(n) time. This quadratic complexity seems rather wasteful. Can we do better? 
+At this point only pure arithmetic is left. But we see that the interpreter had to apply subsitution three times. In general, if the
+program size is n, then the interpreter may perform up to O(n) substitutions, each of which takes O(n) time. This quadratic complexity
+seems rather wasteful. Can we do better? 
 
-We can avoid the redundancy by deferring the substitutions until they are really needed. Concretely, we define a repository of deferred substitutions, called _environment_. It tells us which identifiers are supposed to be eventually substituted by which value. This idea is captured in the following type definition: 
+We can avoid the redundancy by deferring the substitutions until they are really needed. Concretely, we define a repository of deferred
+substitutions, called _environment_. It tells us which identifiers are supposed to be eventually substituted by which value. This idea
+is captured in the following type definition: 
 */
 
  type Env = Map[Symbol,Int]
 
 /** 
-Initially, we have no substitutions to perform, so the repository is empty. Every time we encounter a construct (a with or application) that requires substitution, we augment the repository with one more entry, recording the identiﬁer’s name and the value (if eager) or expression (if lazy) it should eventually be substituted with. We continue to evaluate without actually performing the substitution.
+Initially, we have no substitutions to perform, so the repository is empty. Every time we encounter a construct (a with or application)
+that requires substitution, we augment the repository with one more entry, recording the identiﬁer’s name and the value (if eager) or
+expression (if lazy) it should eventually be substituted with. We continue to evaluate without actually performing the substitution.
  
-This strategy breaks a key invariant we had established earlier, which is that any identiﬁer the interpreter could encounter must be free, for had it been bound, it would have already been substituted.  Now that we’re longer using the substitution-based model, we may encounter bound identiﬁers during interpretation.  How do we handle them?  We must substitute them by consulting the repository.
+This strategy breaks a key invariant we had established earlier, which is that any identiﬁer the interpreter could encounter must be
+free, for had it been bound, it would have already been substituted.  Now that we’re longer using the substitution-based model, we may
+encounter bound identiﬁers during interpretation.  How do we handle them?  We must substitute them by consulting the repository.
 */
 
 def evalWithEnv(funs: Funs, env: Env, e: Exp) : Int = e match {
@@ -138,7 +154,8 @@ def evalWithEnv(funs: Funs, env: Env, e: Exp) : Int = e match {
 assert( evalWithEnv(someFuns,Map.empty, Call('doubleadder,List(2,3))) == 17)
 
 /** 
-In the interpreter above, we have extended the empty environment when constructing ``newenv``. A conceivable alternative is to extend ``env`` instead, like so:
+In the interpreter above, we have extended the empty environment when constructing ``newenv``. A conceivable alternative is to
+extend ``env`` instead, like so:
 */
 
 def evalDynScope(funs: Funs, env: Env, e: Exp) : Int = e match {
@@ -170,11 +187,19 @@ Obviously this interpreter is "buggy" in the sense that it does not agree with t
 
 Let's introduce some terminology to make the discussion simpler:
  
-__Deﬁnition (Static Scope)__: In a language with static scope, the scope of an identiﬁer’s binding is a syntactically delimited region. A typical region would be the body of a function or other binding construct.
+__Deﬁnition (Static Scope)__: In a language with static scope, the scope of an identiﬁer’s binding is a syntactically delimited region.
+A typical region would be the body of a function or other binding construct.
  
-__Deﬁnition (Dynamic Scope)__: In a language with dynamic scope, the scope of an identiﬁer’s binding is the entire remainder of the execution during which that binding is in effect.
+__Deﬁnition (Dynamic Scope)__: In a language with dynamic scope, the scope of an identiﬁer’s binding is the entire remainder of the
+execution during which that binding is in effect.
 
 We see that ``eval`` and ``evalWithEnv`` give our language static scoping, whereas evalDynScope gives our language dynamic scoping. 
 
-Armed with this terminology, we claim that dynamic scope is entirely unreasonable. The problem is that we simply cannot determine what the value of a program will be without knowing everything about its execution history. If the function f were invoked by some other sequence of functions that did not bind a value for n, then that particular application of f would result in an error, even though a previous application of f in the very same program’s execution completed successfully! In other words, simply by looking at the source text of f, it would be impossible to determine one of the most rudimentary properties of a program: whether or not a given identiﬁer was bound. You can only imagine the mayhem this would cause in a large software system, especially with multiple developers and complex ﬂows of control. We will therefore regard dynamic scope as an error 
+Armed with this terminology, we claim that dynamic scope is entirely unreasonable. The problem is that we simply cannot determine what
+the value of a program will be without knowing everything about its execution history. If the function f were invoked by some other
+sequence of functions that did not bind a value for n, then that particular application of f would result in an error, even though a
+previous application of f in the very same program’s execution completed successfully! In other words, simply by looking at the
+source text of f, it would be impossible to determine one of the most rudimentary properties of a program: whether or not a given
+identiﬁer was bound. You can only imagine the mayhem this would cause in a large software system, especially with multiple developers
+and complex ﬂows of control. We will therefore regard dynamic scope as an error 
 */ 

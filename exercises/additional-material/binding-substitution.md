@@ -86,7 +86,7 @@ otherwise the variable stays as it is.
 ```scala
 def subst(e: Expr, i: Symbol, v: Num): Exp = e match {
   case Num(n)              => e
-  case Add(l,r)            => Add(subst(l, x, v), subst(r, x, v))
+  case Add(l,r)            => Add(subst(l, i, v), subst(r, i, v))
   case Var(x)              => if (x == i) v else e
   case With(x, xDef, body) => ???
 }
@@ -123,7 +123,7 @@ With this in mind, we can now complete our paraphrase by adding the word "free":
 This in turn lets us complete the definition of `subst`:
 
 ```scala
-  case With(x, xDef, body) => With(x, subst(body, i, v), if (x == i) body else subst(body, i, v)
+  case With(x, xDef, body) => With(x, subst(xDef, i, v), if (x == i) body else subst(body, i, v))
 ```
 
 We substitute within the definition for the variable bound by the `With` (`x`), and within the body,
@@ -205,7 +205,7 @@ the desugaring:
 
 ```scala
   case LetStar((x, xDef) :: defs, body) => eval(subst(LetStar(defs, body), x, Num(eval(xDef))))
-  case LetStar(Nil, body)               => body
+  case LetStar(Nil, body)               => eval(body)
 ```
 
 The only difference is that instead of inserting a `Let` at the appropriate position,
@@ -214,7 +214,7 @@ into the remainder of the `LetStar`, and then evaluate the entire thing.
 
 Like the `letStar` function in the desugaring, this process will eventually terminate since
 the number of definitions is reduced by one at each step, finally arriving at the empty list.
-In this empty list case we just produce the body unchanged.
+In this empty list case we just evaluate the body unchanged.
 
 (We could also implement `LetStar` with a fold over the definitions instead of having
 the two cases for cons and empty list within the `eval` function.)

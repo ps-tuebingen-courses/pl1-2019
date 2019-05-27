@@ -24,14 +24,16 @@ object AE {
 }
 
 /** 
-In this lecture we want to study the technique of desugaring as a means to structure programming languages and decompose a language into a core language and syntactic sugar.
+In this lecture we want to study the technique of desugaring as a means to structure programming languages and decompose a language into
+a core language and syntactic sugar.
  
 For illustration, consider the following proposed extensions to the language:
   1. Mult
   2. Sub
   3. Unary Negation 
 
-Extension number 1 is a good example for a core language extension. We have no way of expressing mult in terms of the existing constructs (if we had some looping construct we could express mult as repeated Add but we do not have loops).
+Extension number 1 is a good example for a core language extension. We have no way of expressing mult in terms of the existing constructs
+(if we had some looping construct we could express mult as repeated Add but we do not have loops).
  
 Hence we add this language construct to the (core) language:
 */
@@ -100,9 +102,13 @@ With this desugaring in place, we do not need an interpreter for SMAE anymore; r
 val res = MAE.eval(desugarSMAE2MAE(SMAE.ex))
 
 /** 
-If we had written other algorithms on MAE, or had proven properties of MAE, they'd be applicable to SMAE, too. Hence desugaring is a way of reusing code, proofs, ... . It is important, though, that the desugared language feature is gone after desugaring. For instance, a pretty printer would print the desugared code. A debugger would use the desugared code. This can be an important downside to desugaring. There are ways to avoid or mitigate these shortcomings, but they require additional work.
+If we had written other algorithms on MAE, or had proven properties of MAE, they'd be applicable to SMAE, too. Hence desugaring is a way
+of reusing code, proofs, ... . It is important, though, that the desugared language feature is gone after desugaring. For instance,
+a pretty printer would print the desugared code. A debugger would use the desugared code. This can be an important downside to desugaring.
+There are ways to avoid or mitigate these shortcomings, but they require additional work.
 
-There is a second way of realizing desugaring which does not require the definition of a copy of the AST classes. We can desugar earlier, namely during the construction of the AST: */
+There is a second way of realizing desugaring which does not require the definition of a copy of the AST classes. We can desugar earlier,
+namely during the construction of the AST: */
 
 object SMAE2 {
   // Abstract Syntax Tree
