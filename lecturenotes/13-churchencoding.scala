@@ -2,7 +2,9 @@
 Church Encoding
 ===============
 
-Today we shrink our language. It does not seem to be big, but today we want to  illustrate how powerful our core language, the lambda calculus, is. Here is a shrinked version of FAE that does not even have numbers anymore. For testing purposes, we introduce a new expression ``PrintDot`` whose semantics is to print a dot on the screen. 
+Today we shrink our language. It does not seem to be big, but today we want to  illustrate how powerful our core language,
+the lambda calculus, is. Here is a shrinked version of FAE that does not even have numbers anymore. For testing purposes,
+we introduce a new expression ``PrintDot`` whose semantics is to print a dot on the screen. 
 */
 sealed abstract class Exp
 case class Id(name: Symbol) extends Exp
@@ -16,7 +18,8 @@ type Env = Map[Symbol, Value]
 case class ClosureV(f:Fun, env:Env) extends Value
 
 /** 
-Notice that the only values in this language are closures. This means that there cannot be the situation anymore that we expect, say, a number but get in fact a closure. Hence, this language has the fascinating property that  no dynamic type errors can occur. 
+Notice that the only values in this language are closures. This means that there cannot be the situation anymore that we expect,
+say, a number but get in fact a closure. Hence, this language has the fascinating property that  no dynamic type errors can occur. 
 */
  
 def eval(e: Exp, env: Env) : Value = e match {
@@ -30,7 +33,8 @@ def eval(e: Exp, env: Env) : Value = e match {
 }
 
 /** 
-Now we want to illustrate that we can, in principle, bootstrap a full programming language from this small core. To do so, we use the technique of Church encoding. This means that each datum is represented by its own fold function.
+Now we want to illustrate that we can, in principle, bootstrap a full programming language from this small core.
+To do so, we use the technique of Church encoding. This means that each datum is represented by its own fold function.
 
 Church Encoding of Booleans
 ---------------------------
@@ -72,7 +76,8 @@ val printnum = Fun('a, App(App('a, Fun('x, PrintDot())), f))
 /** 
 Church encoding of lists
 ------------------------
-Again straightforward, except "tail", which we do not show here. It needs the same kind of trick (called "pairing trick") as the predecessor function. 
+Again straightforward, except "tail", which we do not show here. It needs the same kind of trick (called "pairing trick")
+as the predecessor function. 
 */
 val emptylist = Fun('c, Fun('e, 'e))
 val cons = Fun('h, Fun('r, Fun('c, Fun('e, App(App('c, 'h), App(App('r,'c),'e))))))

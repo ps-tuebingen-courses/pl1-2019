@@ -2,7 +2,8 @@
 /**
 Garbage Collection
 ==================
-Let us now consider a more accurate modeling of garbage collection (gc). This time, we will use a mutable store instead of a functional store, because our purpose is not to explain mutation but to explain gc.
+Let us now consider a more accurate modeling of garbage collection (gc). This time, we will use a mutable store instead of
+a functional store, because our purpose is not to explain mutation but to explain gc.
 */
 
 import scala.collection.mutable.ArraySeq
@@ -29,7 +30,8 @@ case class OpenBox(b: Exp) extends Exp
 case class Seq(e1: Exp, e2: Exp) extends Exp
 
 /** 
-We will equip our values with a mutable flag that is useful for mark-and-sweep garbage collection. In real systems it is implemented as a bit flag, or, if the so-called "tri-color algorithm" is used, with two bit flags.
+We will equip our values with a mutable flag that is useful for mark-and-sweep garbage collection.
+In real systems it is implemented as a bit flag, or, if the so-called "tri-color algorithm" is used, with two bit flags.
 */
 
 abstract class Value { 
@@ -37,7 +39,8 @@ abstract class Value {
 }
 
 /** 
-We will also use a mutable map instead of a map for environments. This is not needed for mark-and-sweep, but for copying garbage collectors such as Cheney's semi-space garbage collection algorithm.
+We will also use a mutable map instead of a map for environments. This is not needed for mark-and-sweep,
+but for copying garbage collectors such as Cheney's semi-space garbage collection algorithm.
 */
 
 type Env = scala.collection.mutable.Map[Symbol, Value]
@@ -46,7 +49,8 @@ case class ClosureV(f: Fun, env: Env) extends Value
 case class AddressV(a: Int) extends Value
 
 /** 
-To be able to experiment with different store and gc designs, we create an interface for stores. The stack parameter in malloc is needed during gc to determine the root nodes from which the algorithms can start.
+To be able to experiment with different store and gc designs, we create an interface for stores.
+The stack parameter in malloc is needed during gc to determine the root nodes from which the algorithms can start.
 */
 
 trait Store {
@@ -56,7 +60,9 @@ trait Store {
 }
 
 /** 
-In our interpreter, the stack of environments is only implicitly available on the stack of the meta-language. To reify the call-stack we need to make it explicit. We do so by constructing the stack explicitly and passing it as parameter. The first element of the stack is the current environment; the rest is only needed for gc.
+In our interpreter, the stack of environments is only implicitly available on the stack of the meta-language.
+To reify the call-stack we need to make it explicit. We do so by constructing the stack explicitly and passing it as parameter.
+The first element of the stack is the current environment; the rest is only needed for gc.
 */
 
 def eval(e: Exp, stack: List[Env], store: Store) : Value = e match {
@@ -265,22 +271,35 @@ def runTest4 = eval(
                )
 
 /** 
-This model of garbage collection does not illustrate the difficulty of memory management. In most languages, the size of the allocated memory regions on the heap vary, and hence one needs an algorithm to find a free and large-enough spot on the heap. There are various algorithms and heuristics (best-fit, worst-fit, first-fit, ...) for that purpose.
+This model of garbage collection does not illustrate the difficulty of memory management. In most languages, the size of
+the allocated memory regions on the heap vary, and hence one needs an algorithm to find a free and large-enough spot on the heap.
+There are various algorithms and heuristics (best-fit, worst-fit, first-fit, ...) for that purpose.
 
-There are also various alternative gc designs. Mark-and-sweep is a non-moving algorithm, where reachable heap objects are never moved. In contrast to that, copying gc algorithms move the reachable objects to a different portion of the heap. One of the oldest algorithms is the semi-space garbage collector, in particular with the implementation purpose.
+There are also various alternative gc designs. Mark-and-sweep is a non-moving algorithm, where reachable heap objects are never moved.
+In contrast to that, copying gc algorithms move the reachable objects to a different portion of the heap. One of the oldest algorithms
+is the semi-space garbage collector, in particular with the implementation purpose.
 
      http://www.cs.umd.edu/class/fall2002/cmsc631/cheney/cheney.html
 
 Topic for class discussion: What are the pros and cons of moving vs. non-moving gc?
  
-It can be shown empirically that most unreachable objects become unreachable while they are still young. Generational gc algorithms take this empirical fact into account and divide the objects into generations, whereby the (small) youngest generation of objects is garbage-collected more frequently.
+It can be shown empirically that most unreachable objects become unreachable while they are still young. Generational gc algorithms
+take this empirical fact into account and divide the objects into generations, whereby the (small) youngest generation of objects
+is garbage-collected more frequently.
  
-A typical problem of the simple gc algorithms we discussed is the stop-the-world phenomenon: All execution has to be stopped during a gc cycle. This issue is addressed by incremental or concurrent garbage collectors. Incremental garbage collectors typically reduce* the total throughput but increase responsiveness and real-time behavior.
+A typical problem of the simple gc algorithms we discussed is the stop-the-world phenomenon: All execution has to be stopped during
+a gc cycle. This issue is addressed by incremental or concurrent garbage collectors. Incremental garbage collectors typically reduce*
+the total throughput but increase responsiveness and real-time behavior.
  
-A completely different approach to memory management is _reference counting_. In reference counting, each object on the heap (in our case, each box) maintains a counter which says how many pointers currently point to that object. The counter is adjusted whenever a pointer variable is assigned to this object (incremented), or from this object to another object (decremented). When the counter is 0, the object can be reclaimed.
+A completely different approach to memory management is _reference counting_. In reference counting, each object on the heap
+(in our case, each box) maintains a counter which says how many pointers currently point to that object. The counter is adjusted
+whenever a pointer variable is assigned to this object (incremented), or from this object to another object (decremented).
+When the counter is 0, the object can be reclaimed.
 
-The obvious disadvantage of reference counting is that it cannot detect cycles on the heap. Hence reference counting algorithm must be augmented with some means to detect cycles.
+The obvious disadvantage of reference counting is that it cannot detect cycles on the heap. Hence reference counting algorithm
+must be augmented with some means to detect cycles.
 
-Topic for class discussion: What are the pros and cons of reference counting vs. tracing garbage collectors such as mark-and-sweep or semi-space?
+Topic for class discussion: What are the pros and cons of reference counting vs. tracing garbage collectors such as mark-and-sweep
+or semi-space?
 */
 
