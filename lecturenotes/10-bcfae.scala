@@ -1,11 +1,15 @@
 /** 
 Mutation
 ========
-Today we study _mutation_. More specifically, we want to equip our language with mutable data structures.  Typical mutable data structures in common languages include objects with mutable fields or structures/records in languages like C or Pascal.
+Today we study _mutation_. More specifically, we want to equip our language with mutable data structures.
+Typical mutable data structures in common languages include objects with mutable fields or structures/records in languages like C or Pascal.
 
-We will study a particularly simple mutable data structure: Boxes. In OO parlance, boxes can be thought of as an object with a single field that can be mutated. Despite their simplicity, boxes already illustrate all main issues associated with adding mutable state to a language.
+We will study a particularly simple mutable data structure: Boxes. In OO parlance, boxes can be thought of as an object with
+a single field that can be mutated. Despite their simplicity, boxes already illustrate all main issues associated with adding
+mutable state to a language.
 
-A different and less interesting form of mutation is the mutability of _variables_, such as the possibility to assign something to a 'local' variable bound via a lambda or ``with``. We will not talk about mutable variables today.
+A different and less interesting form of mutation is the mutability of _variables_, such as the possibility to assign something
+to a 'local' variable bound via a lambda or ``with``. We will not talk about mutable variables today.
 
 We will add boxes to our base language, FAE.
 */
@@ -52,11 +56,15 @@ Here is an attempt:
        eval(e2, env)
      }
 
-This cannot be correct. As long as our interpreter does not use mutation, evaluation could not make any changes to the environment, hence there is* no way the evaluation of e1 could have any effect on the evaluation of e2.
+This cannot be correct. As long as our interpreter does not use mutation, evaluation could not make any changes to the environment,
+hence there is* no way the evaluation of e1 could have any effect on the evaluation of e2.
  
-In order to demostrate the actual nature of mutation, we will not use mutation in our meta-language to implement mutation in our object language. That said, we will not use a mutable data structure to implement environment in our interpreter.
+In order to demostrate the actual nature of mutation, we will not use mutation in our meta-language to implement mutation
+in our object language. That said, we will not use a mutable data structure to implement environment in our interpreter.
 
-Instead, one may turn to the so-called environment-passing style, in which the interpreter returns also a possibly updated environment together with the computed value when it evaluates an expression.  However, this solution does not always work.  Consider the following example:
+Instead, one may turn to the so-called environment-passing style, in which the interpreter returns also a possibly updated environment
+together with the computed value when it evaluates an expression.  However, this solution does not always work.  Consider the following
+example:
 */
 
 val test2 = wth('a, NewBox(1),
@@ -67,14 +75,18 @@ val test2 = wth('a, NewBox(1),
 /** 
 The mutation should affect the box stored in the closure bound to ``f``.  But with the implementation strategy described above it would not.
 
-Note that changing the value of a in the example is not a vialation of static scope.  Scoping only says where an identifier is bound; it does not say to what an identifier is bound, in particular, whether whatever bound to the identifier is fixed.  Indeed, the variable a is bound to the same box in both the static environment where the function f is created and the dynamic environment where the function f is applied.
+Note that changing the value of a in the example is not a vialation of static scope.  Scoping only says where an identifier is bound;
+it does not say to what an identifier is bound, in particular, whether whatever bound to the identifier is fixed. 
+Indeed, the variable a is bound to the same box in both the static environment where the function f is created and the dynamic environment
+where the function f is applied.
 
 As before, when applying the function f to the argument 5, we can choose either
 
    1) To use the static environment (where the variable a is bound to a boxed 1) stored in the closure created for f.
    2) Or to use the dynamic environment (where the variable a is bound to a  boxed 2) present at the time of applying f.
 
-The first choice leads the program to evaluate to 6 rather than the expected 7.  The second will record the change to the box, but it reintroduces dynamic scoping.  So both choices do not work.
+The first choice leads the program to evaluate to 6 rather than the expected 7.  The second will record the change to the box,
+but it reintroduces dynamic scoping.  So both choices do not work.
 
 Insight: We need _two_ repositories of information.
  
@@ -89,7 +101,8 @@ case class ClosureV(f: Fun, env: Env) extends Value
 /** 
 The other, which we call _store_, is trackis dynamic changes.
 
-Determining the value inside a box will become a two-step process: We first evaluate the box expression to an _address_, and then use the store to lookup the value stored at that address. We choose to represent addresses by integers.
+Determining the value inside a box will become a two-step process: We first evaluate the box expression to an _address_,
+and then use the store to lookup the value stored at that address. We choose to represent addresses by integers.
 */
 
 type Address = Int
@@ -109,7 +122,8 @@ def nextAddress : Address = {
 }
 
 /** 
-Note: We promised to implement the interpreter without using mutation. Here we did use mutation, but this musage of mutation is not essential: we could instead just search for the largest address in the present store and add one to it.
+Note: We promised to implement the interpreter without using mutation. Here we did use mutation, but this musage of mutation
+is not essential: we could instead just search for the largest address in the present store and add one to it.
 
 Let's now discuss the evaluation of FAE with conditionals and boxes, BCFAE. To this end, consider the following sample program:
 */
@@ -121,7 +135,8 @@ val test3 = wth('switch, NewBox(0),
                  Add(App('toggle,42), App('toggle,42))))
 
 /** 
-This program should return 1. Let's discuss on the blackboard what the environment and store should look like during the evaluation of this program.
+This program should return 1. Let's discuss on the blackboard what the environment and store should look like during the
+evaluation of this program.
 
 
 ID      Exp                     Value   Env             Store
@@ -135,7 +150,8 @@ F         Add(0,1)              1
 
 Insight:
 
-We must pass the current store in to evaluate every expression and pass the possibly updated store out after the evaluation.  This is called _store-passing style:.  Consequently, we have to update the type of our evaluator.
+We must pass the current store in to evaluate every expression and pass the possibly updated store out after the evaluation. 
+This is called _store-passing style:.  Consequently, we have to update the type of our evaluator.
 */
 
 def eval(e: Exp, env: Env, s: Store) : (Value, Store) = e match {
@@ -225,9 +241,13 @@ def eval(e: Exp, env: Env, s: Store) : (Value, Store) = e match {
 }
 
 /** 
-From an implementation point of view, our interpreter has the problem that nothing is ever removed from the store. One possibility would be to add an operation "removeBox" or the like to the language, but this would lead to dangling pointers and all the* problems associated with manual memory management.
+From an implementation point of view, our interpreter has the problem that nothing is ever removed from the store.
+One possibility would be to add an operation "removeBox" or the like to the language, but this would lead to dangling pointers
+and all the* problems associated with manual memory management.
  
-Our model of stores is sufficient to illustrate how modern languages deal with memory management: by garbage collection. Garbage collectors automatically reclaim memory that is no longer referenced from within the active part of the computation. We can* model a (naive) mark-and-sweep garbage collector as follows:
+Our model of stores is sufficient to illustrate how modern languages deal with memory management: by garbage collection.
+Garbage collectors automatically reclaim memory that is no longer referenced from within the active part of the computation.
+We can* model a (naive) mark-and-sweep garbage collector as follows:
 */
 
 def gc(env: Env, store:Store) : Store = {
@@ -268,5 +288,10 @@ val teststore = Map(
 assert(gc(Map('a -> AddressV(10)), teststore) == teststore - 7 - 9)
 
 /** 
-Note that garbage collectors only _approximate_ the set of semantically disposable store entities. Even with garbage collectors, applications may very well suffer from memory leaks. The approximation should be _safe_, in the sense that a datum is never reclaimed when it is used by subsequent computations. Furthermore, it must reclaim enough garbage to be actually useful. Reachability has turned out to be a rather useful (and sound) approximation of semantic disposability. Garbage collectors must also be efficient. Efficiency of GC is a huge research topic that we are not going to discuss. One efficiency problem with garbage collectors based on reachability that we want to mention is the "stop-the-world" phenomenon.
+Note that garbage collectors only _approximate_ the set of semantically disposable store entities. Even with garbage collectors,
+applications may very well suffer from memory leaks. The approximation should be _safe_, in the sense that a datum is never reclaimed
+when it is used by subsequent computations. Furthermore, it must reclaim enough garbage to be actually useful. Reachability has turned
+out to be a rather useful (and sound) approximation of semantic disposability. Garbage collectors must also be efficient.
+Efficiency of GC is a huge research topic that we are not going to discuss. One efficiency problem with garbage collectors based on
+reachability that we want to mention is the "stop-the-world" phenomenon.
  */
