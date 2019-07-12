@@ -1,7 +1,9 @@
 /** 
 First-Class Continuations
 =========================
-Today's goal is to formalize first-class continuations as illustrated by Scheme's let/cc construct. In the previous lecture we have learned why first class continuations are a powerful language construct. Today we learn the semantics of first-class continuations by extending our interpreter to support letcc. Here is the abstract syntax of the language we want to extend: 
+Today's goal is to formalize first-class continuations as illustrated by Scheme's let/cc construct. In the previous lecture we have
+learned why first class continuations are a powerful language construct. Today we learn the semantics of first-class continuations by
+extending our interpreter to support letcc. Here is the abstract syntax of the language we want to extend: 
 */
 
 sealed abstract class Exp
@@ -21,11 +23,14 @@ case class Letcc(param: Symbol, body: Exp) extends Exp
 /**
 But how do we implement letcc? How do we get hold of the rest of the computation of the object (=interpreted) program? 
 
-One idea would be to CPS-transform the object program. Then we have the current continuation available and could store it in environments etc.
+One idea would be to CPS-transform the object program. Then we have the current continuation available and could store it in environments
+etc.
 
 However, we want to give a direct semantics to first-class continuations, without first  transforming the object program. 
 
-Insight: If we would CPS-transform the interpreter, the continuation of the interpreter also represents, in some way, the continuation of the object program. The difference is that it represents what's left to do in the interpreter and not in the object program. However, what is left in the interpreter _is_ what is left in the object program.
+Insight: If we would CPS-transform the interpreter, the continuation of the interpreter also represents, in some way, the continuation
+of the object program. The difference is that it represents what's left to do in the interpreter and not in the object program.
+However, what is left in the interpreter _is_ what is left in the object program.
 
 Hence we are faced with two tasks:
   1. CPS-transform the interpreter
@@ -40,17 +45,22 @@ case class NumV(n: Int) extends Value
 case class ClosureV(f: Fun, env: Env) extends Value
 
 /** 
-How do we represent values that represent continuations? Since we want to represent an object language continuation by a meta language continuation, we need to be able to wrap a meta language continuation as an object language value. This continuation will always accept some other object language value: 
+How do we represent values that represent continuations? Since we want to represent an object language continuation by a meta language
+continuation, we need to be able to wrap a meta language continuation as an object language value. This continuation will always accept
+some other object language value: 
 */
 
 case class ContV(f: Value => Nothing) extends Value
 
 /** 
-We also need a syntactic construct to apply continuations. One way to provide such a construct would be to add a new syntactic category of continuation application. We will instead do what Scheme and other languages also do: We overload the normal function applicaton construct and also use it for application of continuations.
+We also need a syntactic construct to apply continuations. One way to provide such a construct would be to add a new syntactic category
+of continuation application. We will instead do what Scheme and other languages also do: We overload the normal function applicaton
+construct and also use it for application of continuations.
 
 This means that we will need a case distinction in our interpreter whether the function argument is a closure or a continuation. 
 
-Let's now study the interpreter for our new language. The branches for Num, Id, Add, and Fun are straightforward applications of the CPS transformation technique we already know. 
+Let's now study the interpreter for our new language. The branches for Num, Id, Add, and Fun are straightforward applications of the
+CPS transformation technique we already know. 
 */ 
 
 def eval(e: Exp, env: Env, k: Value => Nothing) : Nothing = e match {
@@ -82,7 +92,11 @@ def eval(e: Exp, env: Env, k: Value => Nothing) : Nothing = e match {
 }
 
 /** 
-To make it easier to experiment with the interpreter this code provides the right initialization to eval. We have to give eval a continuation which represents the rest of the computation after eval is done. A small technical problem arises due to our  usage of the return type "Nothing" for continuations, to emphasize that they do not return: The only way to implement a value that has this type is a function that does indeed not return. We do so by letting this function throw an exception. To keep track of the returned value we store it temporarily in a variable, catch the exception, and return the stored value. 
+To make it easier to experiment with the interpreter this code provides the right initialization to eval. We have to give eval a
+continuation which represents the rest of the computation after eval is done. A small technical problem arises due to our usage of
+the return type "Nothing" for continuations, to emphasize that they do not return: The only way to implement a value that has this
+type is a function that does indeed not return. We do so by letting this function throw an exception. To keep track of the returned
+value we store it temporarily in a variable, catch the exception, and return the stored value. 
 */
  
 def starteval(e: Exp) : Value = {
