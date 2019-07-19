@@ -2,7 +2,8 @@
 The Simply-Typed Lambda Calculus
 ================================
 
-We start with the untyped substitution-based lambda calculus augmented by the possibility to add type annotations to function definitions. The type annotation is ignored by the interpreter.
+We start with the untyped substitution-based lambda calculus augmented by the possibility to add type annotations to function definitions.
+The type annotation is ignored by the interpreter.
 
 Why are we using the substitution-based interpreter? Because it is simpler to state the type soundness
 theorem. If we had values that are separate from expressions, we would need to define a type system for
@@ -126,7 +127,9 @@ def eval(e: Exp) : Exp = e match {
 }
 
 /**
-We classify values into three types: Booleans, integers, and function types. For function types, we need some abstraction for its input and output; otherwise the type checker cannot be compositional. Luckily we do already have such an abstraction, namely types. Hence ``Funtype`` becomes a recursive data type.
+We classify values into three types: Booleans, integers, and function types. For function types, we need some abstraction for its input
+and output; otherwise the type checker cannot be compositional. Luckily we do already have such an abstraction, namely types.
+Hence ``Funtype`` becomes a recursive data type.
 */
 
 case class NumType() extends Type
@@ -137,7 +140,8 @@ case class ProductType(fst: Type, snd: Type) extends Type
 case class SumType(left: Type, right: Type) extends Type
 
 /**
-The type checker for the so-called _Simply-Typed Lambda Calculus_  (STLC). To deal with identifiers, we need an abstraction of environments.  A type environment has the form ``Map[Symbol,Type]``.
+The type checker for the so-called _Simply-Typed Lambda Calculus_  (STLC). To deal with identifiers, we need an abstraction of environments.
+A type environment has the form ``Map[Symbol,Type]``.
 
 The type checker for the STLC is as follows:
 */
